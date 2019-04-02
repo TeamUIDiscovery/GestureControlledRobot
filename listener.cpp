@@ -12,7 +12,7 @@
 #define MICRO_SEC 1000000.0
 
 #define MAX_GRIP 100
-#define MIN_GRIP 0
+#define MIN_GRIP 20
 
 #define INITX 0
 #define INITY 240
@@ -68,23 +68,10 @@ void SampleListener::onFrame(const Controller& controller) {
     int xPos, yPos, zPos;
     int dis = 0;
 
-    /*std::cout << frame.currentFramesPerSecond() << std::endl;
-    std::cout << "Frame id: " << frame.id()
-          << ", timestamp: " << frame.timestamp() << std::endl;*/
     hands = frame.hands();
     fingers = hands.rightmost().fingers();
-    /*std::cout << "Frame id: " << frame.id()
-          << ", timestamp: " << frame.timestamp()
-          << ", hands: " << frame.hands().count()
-          << ", fingers: " << frame.fingers().count()
-          << ", gestures: " << frame.gestures().count() << std::endl;*/
-
-	/*for (HandList::const_iterator hl = hands.begin(); hl != hands.end(); ++hl) {*/
 
     const Vector handsTranslation = hands.rightmost().palmPosition();
-    /*std::cout << "\t" << "X position: " << handsTranslation.x << "\t"
-    		<< "\t" << "Y position: " << handsTranslation.y << "\t"
-    		<< "\t" << "Z position: " << handsTranslation.z << std::endl;*/
 
     std::string numStr = "";
     std::string xStr = "";
@@ -134,27 +121,24 @@ void SampleListener::onFrame(const Controller& controller) {
     numStr += ',';
     numStr += gripStr;
     numStr += '\n';
-    //std::cout << numStr;
 
     time_t currT;
     time(&currT);
 
     double sec = difftime(currT,startT);
     double frameTimeDiff = (frame.timestamp() - prevTimeFrame) / MICRO_SEC;
-    //std::cout << "time diff : " << frameTimeDiff << std::endl;
 
     if(sec >= 8 && sec <= 9 && change){
         change = 0;
         currX = INITX;
         currY = INITY;
         currZ = INITZ;
-        std::cout << "*********************************back to home position\n";
+        std::cout << "<Back To Home Position>\n";
         time(&startT);
         prevTimeFrame = frame.timestamp();
-        //begin_time = clock();
     }
 
-    if(((dis > 6 && dis < 15) || (diffGrip > 1 && diffGrip < 15) ) && frameTimeDiff > 0.06 ){//|| (diffGrip > 5 && diffGrip < 50) ){
+    if(((dis > 6 && dis < 15) || (diffGrip > 1 && diffGrip < 15 )) && frameTimeDiff > 0.06 ){
 
         change = 1;
         currX = xPos;
@@ -162,30 +146,14 @@ void SampleListener::onFrame(const Controller& controller) {
         currZ = zPos;
         currGrip = gripDistance;
 
-        //begin_time = clock();
         fprintf(arduino, "%i,%i,%i,%i\n", xPos,yPos,zPos,gripDistance);
-        std::cout << "time diff : " << frameTimeDiff << std::endl;
+        printf("%i,%i,%i,%i\n", xPos,yPos,zPos,gripDistance);
+        //std::cout << "time diff : " << frameTimeDiff << std::endl;
         time(&startT);
         prevTimeFrame = frame.timestamp();
-        std::cout << numStr;
         
     }
 
     numStr = "";
-
-    //std::cout << gripDistance << std::endl;
-
-    //std::cout << indexPosition.x << "\t" << indexPosition.y << "\t" << indexPosition.z << "\n";
-
-
-    /*for (FingerList::const_iterator fl = fingers.begin(); fl != fingers.end(); ++fl) {
-    	const Finger finger = *fl;
-    	fingerPosition = finger.tipPosition();
-    	std::cout <<  fingerNames[finger.type()] << "\t:\t" << fingerPosition.x << std::string(4, '\t')
-    			<< fingerPosition.y << std::string(4, '\t') << fingerPosition.z << std::endl << std::endl;
-
-
-
-    }*/
 
 }
