@@ -1,10 +1,10 @@
 INCLUDE := /usr/local/include
 LEAP_LIBRARY := /usr/local/lib/libLeap.dylib
 
-all: hello clean
+all: leap clean
 
-hello: leapMotion.cpp sampleListener.cpp
-	$(CXX) -Wall -g -I $(INCLUDE) leapMotion.cpp sampleListener.cpp -o hello $(LEAP_LIBRARY)
+leap: leapMotion.cpp listener.cpp
+	$(CXX) -Wall -g -I $(INCLUDE) leapMotion.cpp listener.cpp -o leap $(LEAP_LIBRARY)
 
 clean:
 	rm -rf helloWorld.dSYM
