@@ -24,7 +24,7 @@ time_t startT;
 uint64_t prevTimeFrame;
 
 int first = 1;
-extern int change;
+extern int changed;
 
 float timeDiff = 0;
 
@@ -37,15 +37,8 @@ int difX = 0;
 int difY = 0;
 int difZ = 0;
 
-int start = 1;
-
-double getDistance(int xval, int yval, int zval){
-    double dis = 0.0;
-    double val = 0.0;
-    val = pow(xval-currX,2) + pow(yval-currY,2) + pow(zval-currZ,2);
-    dis = pow(val,0.5);
-    return dis;
-}
+// distance in 3d plain 
+double getDistance(int,int,int);
 
 void SampleListener::onConnect(const Controller& controller) {
     std::cout << "Connected" << std::endl;
@@ -58,7 +51,9 @@ void SampleListener::onConnect(const Controller& controller) {
 }
 
 void SampleListener::onFrame(const Controller& controller) {
+
     const Frame frame = controller.frame();
+    // get the timestamp at the very first frame
     if(first){
         time(&startT);
         prevTimeFrame = frame.timestamp();
@@ -68,9 +63,10 @@ void SampleListener::onFrame(const Controller& controller) {
     int xPos, yPos, zPos;
     int dis = 0;
 
-    hands = frame.hands();
-    fingers = hands.rightmost().fingers();
+    hands = frame.hands(); // list of hand objects
+    fingers = hands.rightmost().fingers(); // list of finger objects
 
+    // only look at the rightmost hand
     const Vector handsTranslation = hands.rightmost().palmPosition();
 
     std::string numStr = "";
@@ -79,29 +75,36 @@ void SampleListener::onFrame(const Controller& controller) {
     std::string zStr = "";
     std::string gripStr = "";
 
+    // if there is a hand being tracked, save the new X,Y,Z value
     if(hands.begin() != hands.end()){
         xPos = int(handsTranslation.x);
         yPos = (int(handsTranslation.z) - 240 ) * -1;
         zPos = int(handsTranslation.y);
-    }
+    }// if not, keep the current values
     else{
         xPos = currX;
         yPos = currY;
         zPos = currZ;
     }
 
+    // validate X,Y,Z against ranges
     xPos = fmin(fmax(xPos,MIN_X), MAX_X);
     yPos = fmin(fmax(yPos,MIN_Y), MAX_Y);
     zPos = fmin(fmax(zPos,MIN_Z), MAX_Z);
 
+    // get index and thumb data
     Vector indexPosition, thumbPosition;
+
     FingerList::const_iterator fl = fingers.begin();
-    const Finger thumb = *fl; // thumb 
+    const Finger thumb = *fl; 
     thumbPosition = thumb.tipPosition();
-    ++fl; // index finger
+
+    ++fl;
     const Finger index = *fl;
     indexPosition = index.tipPosition();
 
+    // get distance between index and thumb
+    // validate it against the range
     int gripDistance = fmax(fmin(MAX_GRIP, abs(thumbPosition.x - indexPosition.x)),MIN_GRIP);
     int diffGrip = abs(currGrip - gripDistance);
 
@@ -128,8 +131,8 @@ void SampleListener::onFrame(const Controller& controller) {
     double sec = difftime(currT,startT);
     double frameTimeDiff = (frame.timestamp() - prevTimeFrame) / MICRO_SEC;
 
-    if(sec >= 8 && sec <= 9 && change){
-        change = 0;
+    if(sec >= 8 && sec <= 9 && changed){
+        changed = 0;
         currX = INITX;
         currY = INITY;
         currZ = INITZ;
@@ -140,7 +143,7 @@ void SampleListener::onFrame(const Controller& controller) {
 
     if(((dis > 6 && dis < 15) || (diffGrip > 1 && diffGrip < 15 )) && frameTimeDiff > 0.06 ){
 
-        change = 1;
+        changed = 1;
         currX = xPos;
         currY = yPos;
         currZ = zPos;
@@ -156,4 +159,11 @@ void SampleListener::onFrame(const Controller& controller) {
 
     numStr = "";
 
+}
+double getDistance(int xval, int yval, int zval){
+    double dis = 0.0;
+    double val = 0.0;
+    val = pow(xval-currX,2) + pow(yval-currY,2) + pow(zval-currZ,2);
+    dis = pow(val,0.5);
+    return dis;
 }
