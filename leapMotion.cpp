@@ -1,8 +1,11 @@
-#include "Leap.h"
+
 #include "sampleListener.h"
 
 //volatile int STOP=FALSE;
 volatile int STOP=0;
+extern clock_t begin_time;
+
+int change = 1;
 
 unsigned char buf[255]; 
 
@@ -51,14 +54,15 @@ int main(int argc, char** argv) {
 		If you are using Windows, do differently
 		-------------------
 	***************************************************************/
-    fd = open("/dev/tty.usbserial-AI06JFP3", O_RDWR | O_NOCTTY | O_NDELAY); 
+    //fd = open("/dev/tty.usbserial-AI06JFP3", O_RDWR | O_NOCTTY | O_NDELAY); 
      
-   	if(fd == -1) { // Check for port errors
+   	/*if(fd == -1) { // Check for port errors
            std::cout << fd;
            perror("Unable to open serial port\n");
            return (0);
-    }
-    init_port(&fd,9600);
+    }*/
+    //init_port(&fd,9600);
+    //init_port(&fd,38400);
     //write(fd,&cmd,sizeof(cmd));
 	// create an instance of listener
 	SampleListener listener(&fd);

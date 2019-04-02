@@ -12,9 +12,12 @@ using namespace Leap;
 const std::string fingerNames[] = {"Thumb", "Index", "Middle", "Ring", "Pinky"};
 
 class SampleListener : public Listener {
-    public:
+//private:
+	//Frame frame;
+
+
+public:
    	int *FD;
-   	int pos;
    	HandList hands;
    	FingerList fingers;
     SampleListener(int *f) { FD = f; }
