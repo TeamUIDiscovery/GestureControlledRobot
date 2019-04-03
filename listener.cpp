@@ -2,40 +2,23 @@
 #include <cmath>
 #include <ctime>
 
-#define MAX_X 200
-#define MIN_X -200
-#define MAX_Y 350
-#define MIN_Y 120
-#define MAX_Z 350
-#define MIN_Z 100
-
-#define MICRO_SEC 1000000.0
-
-#define MAX_GRIP 100
-#define MIN_GRIP 20
-
-#define INITX 0
-#define INITY 240
-#define INITZ 210
-
 FILE *arduino;
 
-time_t startT;
+//time_t startT;
 uint64_t prevTimeFrame;
 
-int first = 1;
 extern int changed;
 
-float timeDiff = 0;
+//float timeDiff = 0;
 
 int currX = 0;
 int currY = 240;
 int currZ = 210;
 int currGrip = 0;
 
-int difX = 0;
-int difY = 0;
-int difZ = 0;
+int activateArm = 0;
+int startTime = 1;
+int isHome = 0;
 
 // distance in 3d plain 
 double getDistance(int,int,int);
@@ -43,22 +26,16 @@ double getDistance(int,int,int);
 void SampleListener::onConnect(const Controller& controller) {
     std::cout << "Connected" << std::endl;
 
-    /*arduino = fopen("/dev/tty.usbserial-AI06JFP3", "w");
+    arduino = fopen("/dev/tty.usbserial-AI06JFP3", "w");
     if(arduino == NULL){
         printf("Serial not opened\n");
         exit(1);
-  }*/
+  }
 }
 
 void SampleListener::onFrame(const Controller& controller) {
 
     const Frame frame = controller.frame();
-    // get the timestamp at the very first frame
-    if(first){
-        time(&startT);
-        prevTimeFrame = frame.timestamp();
-        first = 0;
-    }
 
     int xPos, yPos, zPos;
     int dis = 0;
@@ -69,28 +46,36 @@ void SampleListener::onFrame(const Controller& controller) {
     // only look at the rightmost hand
     const Vector handsTranslation = hands.rightmost().palmPosition();
 
-    std::string numStr = "";
-    std::string xStr = "";
-    std::string yStr = "";
-    std::string zStr = "";
-    std::string gripStr = "";
-
     // if there is a hand being tracked, save the new X,Y,Z value
     if(hands.begin() != hands.end()){
-        xPos = int(handsTranslation.x);
-        yPos = (int(handsTranslation.z) - 240 ) * -1;
-        zPos = int(handsTranslation.y);
+        /* filtering */
+        xPos = int(handsTranslation.x) * NEWR + currX * PREVR;
+        yPos = (int(handsTranslation.z) - 240 ) * -1 * NEWR + currY * PREVR;
+        zPos = int(handsTranslation.y) * NEWR + currZ * PREVR;
     }// if not, keep the current values
     else{
         xPos = currX;
         yPos = currY;
         zPos = currZ;
+        activateArm = 0;
     }
 
     // validate X,Y,Z against ranges
     xPos = fmin(fmax(xPos,MIN_X), MAX_X);
     yPos = fmin(fmax(yPos,MIN_Y), MAX_Y);
     zPos = fmin(fmax(zPos,MIN_Z), MAX_Z);
+
+    dis = int(getDistance(xPos,yPos,zPos));
+
+    // save the timestamp at the very first frame
+    if(startTime){
+        prevTimeFrame = frame.timestamp();
+        startTime = 0;
+    }
+
+    if(activateArm == 0)
+        if(dis > 6 && dis < 15)
+            activateArm = 1;
 
     // get index and thumb data
     Vector indexPosition, thumbPosition;
@@ -106,59 +91,39 @@ void SampleListener::onFrame(const Controller& controller) {
     // get distance between index and thumb
     // validate it against the range
     int gripDistance = fmax(fmin(MAX_GRIP, abs(thumbPosition.x - indexPosition.x)),MIN_GRIP);
-    int diffGrip = abs(currGrip - gripDistance);
+    //int diffGrip = abs(currGrip - gripDistance);
 
-    dis = int(getDistance(xPos,yPos,zPos));
-
-
-    xStr = std::to_string(xPos);
-    yStr = std::to_string(yPos);
-    zStr = std::to_string(zPos);
-    gripStr = std::to_string(gripDistance);
-
-    numStr += xStr;
-    numStr += ',';
-    numStr += yStr;
-    numStr += ',';
-    numStr += zStr;
-    numStr += ',';
-    numStr += gripStr;
-    numStr += '\n';
-
-    time_t currT;
-    time(&currT);
-
-    double sec = difftime(currT,startT);
     double frameTimeDiff = (frame.timestamp() - prevTimeFrame) / MICRO_SEC;
 
-    if(sec >= 8 && sec <= 9 && changed){
+    if(frameTimeDiff > 7 && (activateArm == 0) && (isHome == 0)){
+        isHome = 1;
         changed = 0;
+
         currX = INITX;
         currY = INITY;
         currZ = INITZ;
-        std::cout << "<Back To Home Position>\n";
-        time(&startT);
+        std::cout << "< Move Arm Back To Home Position >\n";
+
+        // save current time stamp
         prevTimeFrame = frame.timestamp();
     }
 
-    if(frameTimeDiff > 0.06 ){// && ((dis > 6 && dis < 15) || (diffGrip > 1 && diffGrip < 15 ))){
-
+    if(frameTimeDiff > 0.08 && activateArm){// && ((dis > 6 && dis < 15) || (diffGrip > 1 && diffGrip < 15 ))){
+        isHome = 0;
         changed = 1;
         currX = xPos;
         currY = yPos;
         currZ = zPos;
         currGrip = gripDistance;
 
-        //fprintf(arduino, "%i,%i,%i,%i\n", xPos,yPos,zPos,gripDistance);
+        fprintf(arduino, "%i,%i,%i,%i\n", xPos,yPos,zPos,gripDistance);
         printf("%i,%i,%i,%i\n", xPos,yPos,zPos,gripDistance);
-        std::cout << "time diff : " << frameTimeDiff << std::endl;
-        time(&startT);
+        //std::cout << "time diff : " << frameTimeDiff << std::endl;
+
+        // save current time stamp
         prevTimeFrame = frame.timestamp();
         
     }
-
-    numStr = "";
-
 }
 double getDistance(int xval, int yval, int zval){
     double dis = 0.0;
