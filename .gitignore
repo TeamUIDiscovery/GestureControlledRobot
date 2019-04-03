@@ -1,3 +1,4 @@
 .DS_Store
-main
-/main.dSYM
+/Mac/.DS_Store
+/Mac/main
+/Mac/main.dSYM
