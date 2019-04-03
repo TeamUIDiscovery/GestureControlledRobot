@@ -43,11 +43,11 @@ double getDistance(int,int,int);
 void SampleListener::onConnect(const Controller& controller) {
     std::cout << "Connected" << std::endl;
 
-  arduino = fopen("/dev/tty.usbserial-AI06JFP3", "w");
-  if(arduino == NULL){
-     printf("Serial not opened\n");
-     exit(1);
-  }
+    /*arduino = fopen("/dev/tty.usbserial-AI06JFP3", "w");
+    if(arduino == NULL){
+        printf("Serial not opened\n");
+        exit(1);
+  }*/
 }
 
 void SampleListener::onFrame(const Controller& controller) {
@@ -141,7 +141,7 @@ void SampleListener::onFrame(const Controller& controller) {
         prevTimeFrame = frame.timestamp();
     }
 
-    if(((dis > 6 && dis < 15) || (diffGrip > 1 && diffGrip < 15 )) && frameTimeDiff > 0.06 ){
+    if(frameTimeDiff > 0.06 ){// && ((dis > 6 && dis < 15) || (diffGrip > 1 && diffGrip < 15 ))){
 
         changed = 1;
         currX = xPos;
@@ -149,9 +149,9 @@ void SampleListener::onFrame(const Controller& controller) {
         currZ = zPos;
         currGrip = gripDistance;
 
-        fprintf(arduino, "%i,%i,%i,%i\n", xPos,yPos,zPos,gripDistance);
+        //fprintf(arduino, "%i,%i,%i,%i\n", xPos,yPos,zPos,gripDistance);
         printf("%i,%i,%i,%i\n", xPos,yPos,zPos,gripDistance);
-        //std::cout << "time diff : " << frameTimeDiff << std::endl;
+        std::cout << "time diff : " << frameTimeDiff << std::endl;
         time(&startT);
         prevTimeFrame = frame.timestamp();
         
