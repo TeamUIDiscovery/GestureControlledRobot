@@ -14,7 +14,7 @@ listener.cpp
 HDRS=\
 listener.h
 
-all: $(BIN)
+all: $(BIN) clean
 
 $(BIN): $(SRCS)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) $(SRCS) $(LIBS) -o $(BIN) $(LEAP_LIBRARY)
