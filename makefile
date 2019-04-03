@@ -1,10 +1,25 @@
 INCLUDE := /usr/local/include
 LEAP_LIBRARY := /usr/local/lib/libLeap.dylib
 
-all: leap clean
+BIN := main
 
-leap: leapMotion.cpp listener.cpp
-	$(CXX) -Wall -g -I $(INCLUDE) leapMotion.cpp listener.cpp -o leap $(LEAP_LIBRARY)
+CXX := g++
+CXXFLAGS=-Wall -g -I   # debug
+LIBS = -lm
+
+SRCS=\
+$(BIN).cpp\
+listener.cpp
+
+HDRS=\
+listener.h
+
+all: $(BIN)
+
+$(BIN): $(SRCS)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) $(SRCS) $(LIBS) -o $(BIN) $(LEAP_LIBRARY)
 
 clean:
-	rm -rf helloWorld.dSYM
+	rm -rf $(BIN).dSYM
+clean-all:
+	rm -rf $(BIN).dSYM $(BIN)

@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
      	use Terminal command "ls /dev/tty.*". Make sure you choose 
      	the same usbSerial name in ArduinoIDE.
      	-------------------
-		If you are using Windows, do differently
+		If you are using Windows, do *differently*
 		-------------------
 	***************************************************************/
 
