@@ -4,28 +4,25 @@
 
 FILE *arduino;
 
-//time_t startT;
 uint64_t prevTimeFrame;
-
-extern int changed;
-
-//float timeDiff = 0;
 
 int currX = 0;
 int currY = 240;
 int currZ = 210;
 int currGrip = 0;
 
-int activateArm = 0;
-int startTime = 1;
-int isHome = 0;
+bool resetTimer = true;
+bool activateArm = false;
+bool isHome = false;
 
 // distance in 3d plain 
 double getDistance(int,int,int);
+int getFilteredVal(int);
 
 void SampleListener::onConnect(const Controller& controller) {
     std::cout << "Connected" << std::endl;
 
+    /* open serial port communication with Arduino board (WRITE ONLY) */
     arduino = fopen("/dev/tty.usbserial-AI06JFP3", "w");
     if(arduino == NULL){
         printf("Serial not opened\n");
@@ -40,8 +37,10 @@ void SampleListener::onFrame(const Controller& controller) {
     int xPos, yPos, zPos;
     int dis = 0;
 
+
     hands = frame.hands(); // list of hand objects
     fingers = hands.rightmost().fingers(); // list of finger objects
+
 
     // only look at the rightmost hand
     const Vector handsTranslation = hands.rightmost().palmPosition();
@@ -49,9 +48,9 @@ void SampleListener::onFrame(const Controller& controller) {
     // if there is a hand being tracked, save the new X,Y,Z value
     if(hands.begin() != hands.end()){
         /* filtering */
-        xPos = int(handsTranslation.x) * NEWR + currX * PREVR;
-        yPos = (int(handsTranslation.z) - 240 ) * -1 * NEWR + currY * PREVR;
-        zPos = int(handsTranslation.y) * NEWR + currZ * PREVR;
+        xPos = getFilteredVal( int(handsTranslation.x) , 'x');
+        yPos = getFilteredVal( (int(handsTranslation.z) - 240 ) * -1 , 'y');
+        zPos = getFilteredVal( int(handsTranslation.y) , 'z');
     }// if not, keep the current values
     else{
         xPos = currX;
@@ -68,14 +67,14 @@ void SampleListener::onFrame(const Controller& controller) {
     dis = int(getDistance(xPos,yPos,zPos));
 
     // save the timestamp at the very first frame
-    if(startTime){
+    if(resetTimer){
         prevTimeFrame = frame.timestamp();
-        startTime = 0;
+        resetTimer = false;
     }
 
-    if(activateArm == 0)
+    if(activateArm == false)
         if(dis > 6 && dis < 15)
-            activateArm = 1;
+            activateArm = true;
 
     // get index and thumb data
     Vector indexPosition, thumbPosition;
@@ -95,9 +94,8 @@ void SampleListener::onFrame(const Controller& controller) {
 
     double frameTimeDiff = (frame.timestamp() - prevTimeFrame) / MICRO_SEC;
 
-    if(frameTimeDiff > 7 && (activateArm == 0) && (isHome == 0)){
-        isHome = 1;
-        changed = 0;
+    if(frameTimeDiff > 7 && (activateArm == false) && (isHome == false)){
+        isHome = true;
 
         currX = INITX;
         currY = INITY;
@@ -109,8 +107,7 @@ void SampleListener::onFrame(const Controller& controller) {
     }
 
     if(frameTimeDiff > 0.08 && activateArm){// && ((dis > 6 && dis < 15) || (diffGrip > 1 && diffGrip < 15 ))){
-        isHome = 0;
-        changed = 1;
+        isHome = false;
         currX = xPos;
         currY = yPos;
         currZ = zPos;
@@ -125,10 +122,21 @@ void SampleListener::onFrame(const Controller& controller) {
         
     }
 }
+
 double getDistance(int xval, int yval, int zval){
     double dis = 0.0;
     double val = 0.0;
     val = pow(xval-currX,2) + pow(yval-currY,2) + pow(zval-currZ,2);
     dis = pow(val,0.5);
     return dis;
+}
+
+int getFilteredVal(int newVal,char c){
+    switch (c):
+        case 'x':
+            return newVal * NEWR + currX * CURR;
+        case 'y':
+            return newVal * NEWR + currY * CURR;
+        case 'z':
+            return newVal * NEWR + currZ * CURR;
 }

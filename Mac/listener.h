@@ -24,7 +24,7 @@
 
 /* Filtering ratio */
 #define NEWR 0.5
-#define PREVR 0.5
+#define CURR 0.5
 
 #define MICRO_SEC 1000000.0
 
