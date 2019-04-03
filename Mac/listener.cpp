@@ -1,6 +1,4 @@
 #include "listener.h"
-#include <cmath>
-#include <ctime>
 
 FILE *arduino;
 
@@ -90,10 +88,16 @@ void SampleListener::onFrame(const Controller& controller) {
     // get distance between index and thumb
     // validate it against the range
     int gripDistance = fmax(fmin(MAX_GRIP, abs(thumbPosition.x - indexPosition.x)),MIN_GRIP);
-    //int diffGrip = abs(currGrip - gripDistance);
 
+    // get the difference in time between 
+    // when the last data was sent and now
     double frameTimeDiff = (frame.timestamp() - prevTimeFrame) / MICRO_SEC;
 
+
+    // if there was no data being sent for more than 7 seconds
+    // AND no hand is being detected by Leap
+    // AND the robotic arm is not in the home position
+    // -> move the arm back to its home position.
     if(frameTimeDiff > 7 && (activateArm == false) && (isHome == false)){
         isHome = true;
 
@@ -106,16 +110,20 @@ void SampleListener::onFrame(const Controller& controller) {
         prevTimeFrame = frame.timestamp();
     }
 
-    if(frameTimeDiff > 0.08 && activateArm){// && ((dis > 6 && dis < 15) || (diffGrip > 1 && diffGrip < 15 ))){
+    
+    if(frameTimeDiff > 0.08 && activateArm){
+        
         isHome = false;
+
+        // save X, Y and Z values
         currX = xPos;
         currY = yPos;
         currZ = zPos;
         currGrip = gripDistance;
 
+        // send coordinate values over
         fprintf(arduino, "%i,%i,%i,%i\n", xPos,yPos,zPos,gripDistance);
         printf("%i,%i,%i,%i\n", xPos,yPos,zPos,gripDistance);
-        //std::cout << "time diff : " << frameTimeDiff << std::endl;
 
         // save current time stamp
         prevTimeFrame = frame.timestamp();

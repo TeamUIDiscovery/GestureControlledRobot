@@ -6,6 +6,8 @@
 #include <termios.h> 
 #include <string>
 #include <iostream>
+#include <cmath>
+#include <ctime>
 
 /* Ranges of X, Y, Z and Grip*/
 #define MAX_X 200
