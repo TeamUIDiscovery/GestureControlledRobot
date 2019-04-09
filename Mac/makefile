@@ -1,5 +1,7 @@
-INCLUDE := /usr/local/include
-LEAP_LIBRARY := /usr/local/lib/libLeap.dylib
+#INCLUDE := /usr/local/include
+#LEAP_LIBRARY := /usr/local/lib/libLeap.dylib
+INCLUDE := ../include
+LEAP_LIBRARY := ../lib/libLeap.dylib
 
 BIN := main
 
