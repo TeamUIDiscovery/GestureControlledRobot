@@ -15,7 +15,7 @@ bool isHome = false;
 
 // distance in 3d plain 
 double getDistance(int,int,int);
-int getFilteredVal(int);
+int getFilteredVal(int,char);
 
 void SampleListener::onConnect(const Controller& controller) {
     std::cout << "Connected" << std::endl;
@@ -140,11 +140,15 @@ double getDistance(int xval, int yval, int zval){
 }
 
 int getFilteredVal(int newVal,char c){
-    switch (c):
+    switch (c){
         case 'x':
             return newVal * NEWR + currX * CURR;
         case 'y':
             return newVal * NEWR + currY * CURR;
         case 'z':
             return newVal * NEWR + currZ * CURR;
+        default:
+            printf("Invalid Character Received While Filtering\n");
+            exit(-1);
+    }
 }
