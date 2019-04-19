@@ -7,25 +7,32 @@
 
 //=============================================================================
 //=============================================================================
-/* Servo IDs */
+/*  
+  Servo IDs
+    If one wanted to add wrist rotation functionality, SID_WRISTROT enumeration
+    should be added as a 7th element.
+ */
 enum {
-  SID_BASE=1, SID_RSHOULDER, SID_LSHOULDER, SID_RELBOW, SID_LELBOW, SID_WRIST, SID_GRIP };//SID_WRISTROT, SID_GRIP};
+  SID_BASE=1, SID_RSHOULDER, SID_LSHOULDER, SID_RELBOW, SID_LELBOW, SID_WRIST, SID_GRIP 
+};
 
 enum {
-  IKM_IK3D_CARTESIAN, IKM_CYLINDRICAL, IKM_BACKHOE};
+  IKM_IK3D_CARTESIAN, IKM_CYLINDRICAL, IKM_BACKHOE
+};
 
 // status messages for IK return codes..
 enum {
-  IKS_SUCCESS=0, IKS_WARNING, IKS_ERROR};
+  IKS_SUCCESS=0, IKS_WARNING, IKS_ERROR
+};
 
 
 #define CNT_SERVOS  7 //(sizeof(pgm_axdIDs)/sizeof(pgm_axdIDs[0]))
 
 // Define some Min and Maxs for IK Movements...
-//                y   Z
+//                Z   Y
 //                |  /
 //                |/
-//            ----+----X (X and Y are flat on ground, Z is up in air...
+//            ----+----X (X and Z are flat on ground, Y is up in air
 //                |
 //                |
 #define IK_MAX_X  250
@@ -40,7 +47,7 @@ enum {
 #define IK_MAX_GA  90
 #define IK_MIN_GA   -90
 
-// Define Ranges for the different servos...
+// Define Ranges for the servos...
 #define BASE_MIN    0
 #define BASE_MAX    800 //1023
 
@@ -56,8 +63,8 @@ enum {
 #define WROT_MIN     0
 #define WROT_MAX     512 // 1023
 
-#define GRIP_MIN     412
-#define GRIP_MAX     612
+#define GRIP_MIN     312
+#define GRIP_MAX     450
 
 // Define some lengths and offsets used by the arm
 #define BaseHeight          110L   // (L0)about 120mm (90mm)
@@ -116,14 +123,14 @@ boolean        g_fDebugOutput = false;
 // Setup 
 //====================================================================================================
 void setup() {
-  Serial.begin(38400); // 115200
+
+  Serial.begin(38400);
+
   // Next initialize the Bioloid
   bioloid.poseSize = CNT_SERVOS;
-
   // Read in the current positions...
   bioloid.readPose();
-  // Start off to put arm to sleep...
-  //PutArmToSleep();
+
   Serial.println("Enter 1 to start");
   char cmd = '~';
   while(cmd != '1'){
@@ -131,12 +138,9 @@ void setup() {
      cmd = Serial.read(); 
     }
   }
-  
   Serial.println("Moving the Arm to Home Position");
-  //MoveArmToHome();
   delay(100);
   Serial.println("Starting Communication");
-  //PutArmToSleep();
 
   //set Gripper Compliance so it doesn't tear itself apart
   ax12SetRegister(SID_GRIP, AX_CW_COMPLIANCE_SLOPE, 128);
@@ -146,29 +150,34 @@ void setup() {
 //===================================================================================================
 // loop: Our main Loop!
 //===================================================================================================
-// Define number of pieces
+
+/* 
+  Number of coordinate data pieces.
+  We have 4 pieces
+    - X, Y, Z and gripping value
+*/
 const int numberOfPieces = 4;
 String pieces[numberOfPieces];
-
-// This will be the buffered string from Serial.read() up until \n
-// Should look something like "123,456,789"
-String input = "";
-
 // Keep track of current position in array
 int counter = 0;
 
+// This will be the buffered string from Serial.read() up until \n
+// Should look something like "123,62,154,50"
+String input = "";
 // Keep track of the last comma so we know where to start the substring
 int lastIndex = 0;
+
 void loop(){
   boolean fChanged = false;
+
   // Check for data coming in from serial
-  
   if (Serial.available() > 0) {
     // Read the first byte and store it as a char
     char ch = Serial.read();
     
     // Do all the processing here since this is the end of a line
     if (ch == '\n' || ch == '\r') {
+
       for (int i = 0; i < input.length(); i++) {
         // Loop through each character and check if it's a comma
         if (input.substring(i, i+1) == ",") {
@@ -179,7 +188,6 @@ void loop(){
           // Increase the position in the array that we store into
           counter++;
         }
-
         // If we're at the end of the string (no more commas to stop us)
         if (i == input.length() - 1) {
           // Grab the last part of the string from the lastIndex to the end
@@ -267,8 +275,10 @@ void loop(){
     }
   }
 }
+
+
 float leapToGripper(float leapVal){
- return -2 * leapVal + 612; 
+ return -2 * leapVal + 512; 
 }
 //===================================================================================================
 // PutArmToSleep
@@ -300,7 +310,7 @@ void MoveArmToHome(void) {
     Serial.print(", ");
     Serial.print(sWrist);
     Serial.println(" >");
-    MoveArmTo(sBase, sShoulder, sElbow, sWrist, 512, 512, 500, true);
+    MoveArmTo(sBase, sShoulder, sElbow, sWrist, 512, 420, 500, true);
   }
   else {
     Serial.println("else stmt");
@@ -333,11 +343,7 @@ boolean ProcessUserInput3D(int xPos, int yPos, int zPos) {
     sIKY = min(max(yPos, IK_MIN_Y), IK_MAX_Y);
     sIKZ = min(max(zPos, IK_MIN_Z), IK_MAX_Z);
     sIKGA = min(max(g_sIKGA, IK_MIN_GA), IK_MAX_GA);
-    /*sIKX = min(max(g_sIKX + xPos/100, IK_MIN_X), IK_MAX_X);
-    sIKY = min(max(g_sIKX + yPos/100, IK_MIN_Y), IK_MAX_Y);
-    sIKZ = min(max(g_sIKX + zPos/100, IK_MIN_Z), IK_MAX_Z);
-    sIKGA = min(max(g_sIKGA, IK_MIN_GA), IK_MAX_GA);*/
-    }
+  }
 
   else {
     // In an Error/warning condition, only allow things to move in closer...
@@ -345,17 +351,7 @@ boolean ProcessUserInput3D(int xPos, int yPos, int zPos) {
     sIKX = g_sIKX + 1;
     sIKY = g_sIKY;
     sIKZ = g_sIKZ;
-    sIKGA = g_sIKGA;
-
-    /*if (((g_sIKX > 0) && (xPos < 0)) || ((g_sIKX < 0) && (xPos > 0)))
-      sIKX = min(max(xPos, IK_MIN_X), IK_MAX_X);
-    if (((g_sIKY > 0) && (yPos < 0)) || ((g_sIKY < 0) && (yPos > 0)))
-      sIKY = min(max(yPos, IK_MIN_Y), IK_MAX_Y);
-    if (((g_sIKZ > 0) && (zPos < 0)) || ((g_sIKZ < 0) && (zPos > 0)))
-      sIKZ = min(max(zPos, IK_MIN_Z), IK_MAX_Z);
-    if (((g_sIKGA > 0) && (zPos < 0)) || ((g_sIKGA < 0) && (zPos > 0))) 
-      sIKGA = min(max(g_sIKGA, IK_MIN_GA), IK_MAX_GA);  // Currently in Servo coords... 
-    sIKGA = min(max(g_sIKGA, IK_MIN_GA), IK_MAX_GA);  */    
+    sIKGA = g_sIKGA;   
   }
   fChanged = (sIKX != g_sIKX) || (sIKY != g_sIKY) || (sIKZ != g_sIKZ) || (sIKGA != g_sIKGA) ;
 
