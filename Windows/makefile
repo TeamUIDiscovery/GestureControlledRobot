@@ -1,4 +1,4 @@
-ifeq ($(ARCHITECTURE), Windows_NT)
+ifeq ($(OS), Windows_NT)
   ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
     LEAP_LIBRARY := lib/x64/Leap.lib
   endif
