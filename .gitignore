@@ -1,4 +1,5 @@
 .DS_Store
-/Mac/.DS_Store
-/Mac/main
-/Mac/main.dSYM
+/Mac_Linux/main
+/Mac_Linux/main.dSYM
+/Windows/main
+/Windows/main.dSYM
