@@ -1,0 +1,11 @@
+﻿  listener.cpp
+C:\Users\UIDiscovery\Desktop\GestureControlledRobot-master\Windows\listener.cpp(24): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\ucrt\stdio.h(208): note: see declaration of 'fopen'
+C:\Users\UIDiscovery\Desktop\GestureControlledRobot-master\Windows\listener.cpp(61): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\UIDiscovery\Desktop\GestureControlledRobot-master\Windows\listener.cpp(62): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\UIDiscovery\Desktop\GestureControlledRobot-master\Windows\listener.cpp(63): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\UIDiscovery\Desktop\GestureControlledRobot-master\Windows\listener.cpp(90): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\UIDiscovery\Desktop\GestureControlledRobot-master\Windows\listener.cpp(145): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\UIDiscovery\Desktop\GestureControlledRobot-master\Windows\listener.cpp(147): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\UIDiscovery\Desktop\GestureControlledRobot-master\Windows\listener.cpp(149): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+  main.cpp
