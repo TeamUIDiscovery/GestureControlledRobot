@@ -1,9 +1,11 @@
-#include "Leap.h"
+#include "include/Leap.h"
 #include <cstring>
+//#define  _CRT_SECURE_NO_WARNINGS
 #include <stdio.h> 
-#include <unistd.h> 
+//#include <unistd.h> 
+//#include <io.h>
+#include <windows.h>
 #include <fcntl.h>  
-#include <termios.h> 
 #include <string>
 #include <iostream>
 #include <cmath>

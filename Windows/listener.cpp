@@ -1,8 +1,12 @@
 #include "listener.h"
 
 FILE *arduino;
+HANDLE hCom;
+BOOL bErrorFlag = FALSE;
 
 uint64_t prevTimeFrame;
+
+int firstTime = 1;
 
 int currX = 0;
 int currY = 240;
@@ -19,13 +23,6 @@ int getFilteredVal(int,char);
 
 void SampleListener::onConnect(const Controller& controller) {
     std::cout << "Connected" << std::endl;
-
-    /* open serial port communication with Arduino board (WRITE ONLY) */
-    arduino = fopen("/dev/tty.usbserial-AI06JFP3", "w");
-    if(arduino == NULL){
-        printf("Serial not opened\n");
-        exit(1);
-  }
 }
 
 void SampleListener::onFrame(const Controller& controller) {
@@ -33,6 +30,8 @@ void SampleListener::onFrame(const Controller& controller) {
     const Frame frame = controller.frame();
 
     int xPos, yPos, zPos;
+    std::string xStr = "", yStr = "", 
+                    zStr = "", gStr = "", DataBuffer = "";
     int dis = 0;
 
 
@@ -93,6 +92,12 @@ void SampleListener::onFrame(const Controller& controller) {
     // when the last data was sent and now
     double frameTimeDiff = (frame.timestamp() - prevTimeFrame) / MICRO_SEC;
 
+    xStr = std::to_string(xPos);
+    yStr = std::to_string(yPos);
+    zStr = std::to_string(zPos);
+    gStr = std::to_string(gripDistance);
+    DataBuffer = xStr + "," + yStr + "," + zStr + "," + gStr + "\n";
+
 
     // if there was no data being sent for more than 7 seconds
     // AND no hand is being detected by Leap
@@ -122,7 +127,17 @@ void SampleListener::onFrame(const Controller& controller) {
         currGrip = gripDistance;
 
         // send coordinate values over
-        fprintf(arduino, "%i,%i,%i,%i\n", xPos,yPos,zPos,gripDistance);
+        bErrorFlag = WriteFile(
+            hCom,           // open file handle
+            DataBuffer.c_str(),      // start of data to write
+            strlen(DataBuffer.c_str()),  // number of bytes to write
+            NULL, // number of bytes that were written
+            NULL);            // no overlapped structure
+
+        if (FALSE == bErrorFlag)
+            printf("Terminal failure: Unable to write to file.\n");
+
+        //fprintf(arduino, "%i,%i,%i,%i\n", xPos,yPos,zPos,gripDistance);
         printf("%i,%i,%i,%i\n", xPos,yPos,zPos,gripDistance);
 
         // save current time stamp
