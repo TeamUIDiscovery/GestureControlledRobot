@@ -1,0 +1,13 @@
+﻿  listener.cpp
+C:\Users\UIDiscovery\Desktop\proj\GestureControlledRobot\Windows\listener.cpp(60): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\UIDiscovery\Desktop\proj\GestureControlledRobot\Windows\listener.cpp(61): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\UIDiscovery\Desktop\proj\GestureControlledRobot\Windows\listener.cpp(62): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\UIDiscovery\Desktop\proj\GestureControlledRobot\Windows\listener.cpp(89): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\UIDiscovery\Desktop\proj\GestureControlledRobot\Windows\listener.cpp(160): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\UIDiscovery\Desktop\proj\GestureControlledRobot\Windows\listener.cpp(162): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+C:\Users\UIDiscovery\Desktop\proj\GestureControlledRobot\Windows\listener.cpp(164): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+  main.cpp
+  Generating Code...
+  Project1.vcxproj -> C:\Users\UIDiscovery\Desktop\proj\GestureControlledRobot\Windows\Project1\Debug\DCI.exe
+  C:\Users\UIDiscovery\Downloads\Leap_Motion_SDK_Windows_2.3.1\LeapDeveloperKit_2.3.1+31549_win\LeapSDK\lib\x86\Leap.dll
+  1 File(s) copied
