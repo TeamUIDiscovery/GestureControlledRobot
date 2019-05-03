@@ -10,7 +10,7 @@ int firstTime = 1;
 
 int currX = 0;
 int currY = 240;
-int currZ = 210;
+int currZ = 105;//210;
 int currGrip = 0;
 
 bool resetTimer = true;
@@ -46,8 +46,8 @@ void SampleListener::onFrame(const Controller& controller) {
     if(hands.begin() != hands.end()){
         /* filtering */
         xPos = getFilteredVal( int(handsTranslation.x) , 'x');
-        yPos = getFilteredVal( (int(handsTranslation.z) - 240 ) * -1 , 'y');
-        zPos = getFilteredVal( int(handsTranslation.y) , 'z');
+        yPos = getFilteredVal( (int(handsTranslation.z) - 240 ) * -1 , 'y'); // 240
+        zPos = getFilteredVal( int(handsTranslation.y/2) , 'z'); // using half the value
     }// if not, keep the current values
     else{
         xPos = currX;
@@ -98,7 +98,7 @@ void SampleListener::onFrame(const Controller& controller) {
     gStr = std::to_string(gripDistance);
     DataBuffer = xStr + "," + yStr + "," + zStr + "," + gStr + "\n";
 
-
+	std::cout << "**" << DataBuffer;
     // if there was no data being sent for more than 7 seconds
     // AND no hand is being detected by Leap
     // AND the robotic arm is not in the home position

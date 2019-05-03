@@ -16,7 +16,7 @@
 #define MIN_X -200
 #define MAX_Y 350
 #define MIN_Y 120
-#define MAX_Z 350
+#define MAX_Z 175//350
 #define MIN_Z 100
 #define MAX_GRIP 100
 #define MIN_GRIP 20
@@ -24,7 +24,7 @@
 /* Initial X,Y and Z */
 #define INITX 0
 #define INITY 240
-#define INITZ 210
+#define INITZ 105
 
 /* Filtering ratio */
 #define NEWR 0.5

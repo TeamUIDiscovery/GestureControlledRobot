@@ -45,13 +45,13 @@ enum {
 #define BASE_MAX    800 //1023
 
 #define SHOULDER_MIN  350
-#define SHOULDER_MAX  710 // 810
+#define SHOULDER_MAX  810
 
-#define ELBOW_MIN    400 // 210
-#define ELBOW_MAX    700 // 900
+#define ELBOW_MIN    300 // 210
+#define ELBOW_MAX    800 // 900
 
-#define WRIST_MIN    300  // 200
-#define WRIST_MAX    530  // 830
+#define WRIST_MIN    200  // 200
+#define WRIST_MAX    630  // 830
 
 #define WROT_MIN     0
 #define WROT_MAX     512 // 1023
@@ -459,7 +459,7 @@ uint8_t doArmIK(boolean fCartesian, int sIKX, int sIKY, int sIKZ, int sIKGA)
   // Magic Number 819???
   sElbow = min(max(819 - sol2, SHOULDER_MIN), SHOULDER_MAX);
 
-#define Wrist_Offset 512
+#define Wrist_Offset 312 //512
   sWrist = min(max(Wrist_Offset - sol3, WRIST_MIN), WRIST_MAX);
 
   // Remember our current IK positions
